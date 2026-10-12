@@ -1,0 +1,16 @@
+.molecule-hero {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(620px, 60%);
+  opacity: 0.9;
+}
+
+@media (max-width: 800px) {
+  .molecule-hero {
+    width: 90%;
+    opacity: 0.35;
+    right: -10%;
+  }
+}

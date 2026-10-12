@@ -1,0 +1,163 @@
+/* ---------- Design tokens ---------- */
+:root {
+  /* Monochrome palette */
+  --color-bg: #ffffff;
+  --color-text: #0a0a0a;
+  --color-text-muted: #6b6b6b;
+  --color-border: rgba(0, 0, 0, 0.12);
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  /* The only accent: error */
+  --color-error: #b3261e;
+
+  /* Frosted glass card */
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --glass-blur: blur(20px);
+
+  /* Shape */
+  --radius-card: 24px;
+  --radius-pill: 999px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Type */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* ---------- Reset / base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+main {
+  min-height: calc(100vh - 80px);
+}
+
+/* ---------- Shared text helpers ---------- */
+.muted {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+.muted.small {
+  font-size: 12px;
+  margin-top: -8px;
+}
+
+.eyebrow {
+  /* labels like "01 / GUIDE" */
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Shared building blocks ---------- */
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s ease;
+}
+.btn:hover {
+  opacity: 0.85;
+}
+a.btn {
+  text-decoration: none;
+} /* when a <Link> is styled as a button */
+
+.btn-primary {
+  /* black pill, e.g. "Sign up" */
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+.btn-outline {
+  /* outlined pill, e.g. "Log in" */
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-text);
+}
+
+.icon-button {
+  /* small round button, e.g. close ✕ */
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ---------- Generic page layout ---------- */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+}
+.page-title {
+  font-size: clamp(40px, 7vw, 88px);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  margin: 8px 0 32px;
+}
+
+@media (max-width: 800px) {
+  .page {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

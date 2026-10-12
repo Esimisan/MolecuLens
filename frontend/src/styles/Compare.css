@@ -1,0 +1,23 @@
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+}
+.compare-card {
+  min-height: 260px;
+}
+.compare-add {
+  min-height: 260px;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  border: 2px dashed var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  .compare-grid {
+    grid-template-columns: 1fr;
+  }
+}

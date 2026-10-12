@@ -18,14 +18,15 @@
   right: 0;
   bottom: 0;
   z-index: 40;
-  width: min(420px, 100%);
+  width: min(26.25rem, 100%);
   border-radius: var(--radius-card) 0 0 var(--radius-card);
   background: rgba(255, 255, 255, 0.9);
   transform: translateX(100%);
   transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
+  overflow-y: auto;
 }
 .saved-panel-open {
   transform: translateX(0);
@@ -37,10 +38,17 @@
   align-items: center;
 }
 .saved-header h2 {
-  font-size: 24px;
+  font-size: 1.5rem;
   letter-spacing: -0.03em;
 }
 
 .saved-footer {
   margin-top: auto;
+}
+
+/* Full-width panel with no rounded edge on phones */
+@media (max-width: 30em) {
+  .saved-panel {
+    border-radius: 0;
+  }
 }

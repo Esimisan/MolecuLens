@@ -14,21 +14,26 @@
   /* Frosted glass card */
   --glass-bg: rgba(255, 255, 255, 0.6);
   --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  --glass-blur: blur(20px);
+  --glass-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.08);
+  --glass-blur: blur(1.25rem);
 
   /* Shape */
-  --radius-card: 24px;
-  --radius-pill: 999px;
+  --radius-card: 1.5rem;
+  --radius-pill: 100vmax;
 
-  /* Spacing scale */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-12: 48px;
+  /* Spacing scale (1rem = 16px by default) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* Layout */
+  --header-height: 5rem;
+  --page-max: 75rem;
+  --page-gutter: clamp(1.25rem, 4vw, 2.5rem);
 
   /* Type */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
@@ -39,6 +44,10 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  font-size: 100%; /* respect the user's browser font setting */
 }
 
 body {
@@ -61,27 +70,38 @@ input {
   font-family: inherit;
 }
 
+img,
+svg {
+  max-width: 100%;
+}
+
 a {
   color: inherit;
 }
 
 main {
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh - var(--header-height));
+  min-height: calc(100dvh - var(--header-height));
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
 }
 
 /* ---------- Shared text helpers ---------- */
 .muted {
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 .muted.small {
-  font-size: 12px;
-  margin-top: -8px;
+  font-size: 0.75rem;
+  margin-top: -0.5rem;
 }
 
 .eyebrow {
   /* labels like "01 / GUIDE" */
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -96,16 +116,17 @@ main {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-card);
-  padding: var(--space-6);
+  padding: clamp(1.25rem, 3vw, 1.5rem);
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 20px;
+  min-height: 2.75rem; /* comfortable touch target */
+  padding: 0.625rem 1.25rem;
   border-radius: var(--radius-pill);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
@@ -133,8 +154,8 @@ a.btn {
 
 .icon-button {
   /* small round button, e.g. close ✕ */
-  width: 36px;
-  height: 36px;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
   border: 1px solid var(--color-border);
   background: transparent;
@@ -143,21 +164,14 @@ a.btn {
 
 /* ---------- Generic page layout ---------- */
 .page {
-  max-width: 1200px;
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 40px;
+  padding: 2.5rem var(--page-gutter);
 }
 .page-title {
-  font-size: clamp(40px, 7vw, 88px);
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
   font-weight: 700;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  margin: 8px 0 32px;
-}
-
-@media (max-width: 800px) {
-  .page {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
+  margin: 0.5rem 0 2rem;
 }

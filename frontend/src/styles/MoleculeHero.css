@@ -3,14 +3,15 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: min(620px, 60%);
+  width: min(38.75rem, 60%);
+  height: auto;
   opacity: 0.9;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 48em) {
   .molecule-hero {
     width: 90%;
-    opacity: 0.35;
     right: -10%;
+    opacity: 0.35;
   }
 }

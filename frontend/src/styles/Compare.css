@@ -1,23 +1,18 @@
 .compare-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
+  /* As many columns as fit, each at least 16rem: 3 → 2 → 1 with no media query */
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  gap: 1.5rem;
 }
 .compare-card {
-  min-height: 260px;
+  min-height: 16rem;
 }
 .compare-add {
-  min-height: 260px;
+  min-height: 16rem;
   border-radius: var(--radius-card);
   cursor: pointer;
   border: 2px dashed var(--color-border);
   background: transparent;
   color: var(--color-text-muted);
-  font-size: 14px;
-}
-
-@media (max-width: 800px) {
-  .compare-grid {
-    grid-template-columns: 1fr;
-  }
+  font-size: 0.875rem;
 }

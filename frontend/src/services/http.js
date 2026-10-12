@@ -35,3 +35,13 @@ export async function fetchJson(url, options = {}) {
   }
   return res.json();
 }
+
+// For secondary data: if it fails, the page should still render.
+export async function optional(promise) {
+  try {
+    return await promise;
+  } catch (err) {
+    if (err.name === "AbortError") throw err;
+    return null;
+  }
+}

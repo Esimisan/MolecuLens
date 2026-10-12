@@ -175,3 +175,9 @@ a.btn {
   text-transform: uppercase;
   margin: 0.5rem 0 2rem;
 }
+
+.btn-outline {
+  background: transparent;
+  color: #111;
+  border: 1px solid #111;
+}

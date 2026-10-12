@@ -1,4 +1,4 @@
-import { ApiError, fetchJson } from "./http";
+import { ApiError, fetchJson, optional } from "./http";
 
 const BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug";
 
@@ -23,12 +23,15 @@ const PROPERTIES = [
 ].join(",");
 
 // Numbers are treated as CIDs, anything else as a compound name.
+const INCHIKEY = /^[A-Z]{14}-[A-Z]{10}-[A-Z]$/;
+
 export async function resolveCid(query, signal) {
   const q = query.trim();
   if (/^\d+$/.test(q)) return Number(q);
 
+  const domain = INCHIKEY.test(q.toUpperCase()) ? "inchikey" : "name";
   const data = await fetchJson(
-    `${BASE}/compound/name/${encodeURIComponent(q)}/cids/JSON`,
+    `${BASE}/compound/${domain}/${encodeURIComponent(q)}/cids/JSON`,
     { signal },
   );
   const cid = data?.IdentifierList?.CID?.[0];
@@ -38,16 +41,6 @@ export async function resolveCid(query, signal) {
       kind: "not-found",
     });
   return cid;
-}
-
-// Synonyms are a bonus: if they fail, the page should still render.
-async function optional(promise) {
-  try {
-    return await promise;
-  } catch (err) {
-    if (err.name === "AbortError") throw err;
-    return null;
-  }
 }
 
 export async function getCompound(query, signal) {

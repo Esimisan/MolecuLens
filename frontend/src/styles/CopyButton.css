@@ -1,0 +1,17 @@
+.copy-btn {
+  flex-shrink: 0;
+  padding: 0.5em 1.15em;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.copy-btn:hover {
+  background: #111;
+  color: #fff;
+}

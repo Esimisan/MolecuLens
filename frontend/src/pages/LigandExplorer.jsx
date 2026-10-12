@@ -10,6 +10,7 @@ import {
   pubchemPageUrl,
 } from "../services/pubchem";
 import "../styles/LigandExplorer.css";
+import StructureViewer from "../components/StructureViewer.jsx";
 
 const SUGGESTIONS = ["aspirin", "caffeine", "ibuprofen", "glucose"];
 const SYNONYMS_PREVIEW = 12;
@@ -173,6 +174,8 @@ function CompoundView({ c }) {
           ))}
         </ul>
       </section>
+
+      <StructureViewer kind="ligand" cid={c.cid} />
 
       <section className="glass-card compound-section">
         <p className="eyebrow">03 / Computed properties</p>

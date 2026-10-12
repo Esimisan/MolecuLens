@@ -12,6 +12,7 @@ import {
   formatResolution,
 } from "../services/rcsb";
 import "../styles/ProteinDetail.css";
+import StructureViewer from "./StructureViewer.jsx";
 
 const fmt = (v, unit = "") =>
   v === null || v === undefined || v === "" ? "—" : `${v}${unit}`;
@@ -128,6 +129,8 @@ function EntryView({ p }) {
           </div>
         </div>
       </div>
+
+      <StructureViewer kind="protein" id={p.id} />
 
       <section className="glass-card pd-section">
         <p className="eyebrow">02 / Structure details</p>

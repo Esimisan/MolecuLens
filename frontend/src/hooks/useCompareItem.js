@@ -14,9 +14,10 @@ export default function useCompareItem(type, query) {
       return;
     }
     let cancelled = false;
+    const controller = new AbortController();
     setState({ status: "loading", item: null, error: null });
     const load = type === "protein" ? loadProtein : loadLigand;
-    load(query)
+    load(query, controller.signal)
       .then(
         (item) =>
           !cancelled && setState({ status: "success", item, error: null }),
@@ -27,6 +28,7 @@ export default function useCompareItem(type, query) {
       );
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, [type, query]);
 

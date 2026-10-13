@@ -20,7 +20,7 @@ function sourceFor({ kind, id, cid }) {
   };
 }
 
-export default function StructureViewer({ kind, id, cid }) {
+export default function StructureViewer({ kind, id, cid, compact = false }) {
   const source = sourceFor({ kind, id, cid });
 
   return (
@@ -28,12 +28,21 @@ export default function StructureViewer({ kind, id, cid }) {
       <header className="structure-viewer__head">
         <span className="eyebrow">3D structure</span>
         <span className="structure-viewer__hint">
-          <span className="hint-desktop">
-            Drag to rotate · scroll to zoom · toolbar changes style
-          </span>
-          <span className="hint-touch">
-            Drag to rotate · pinch to zoom · expand for full controls
-          </span>
+          {compact ? (
+            <span>
+              Drag to rotate · zoom with scroll or pinch · expand for full
+              controls
+            </span>
+          ) : (
+            <>
+              <span className="hint-desktop">
+                Drag to rotate · scroll to zoom · toolbar changes style
+              </span>
+              <span className="hint-touch">
+                Drag to rotate · pinch to zoom · expand for full controls
+              </span>
+            </>
+          )}
         </span>
         {kind === "protein" && (
           <a

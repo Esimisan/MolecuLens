@@ -2,35 +2,44 @@ import { useEffect, useRef, useState } from "react";
 import "molstar/build/viewer/molstar.css";
 import "../styles/MolViewer.css";
 
-const WIDE_QUERY = "(min-width: 51.25em)";
+// Full Mol* panels only when the viewer's OWN box is at least this wide.
+// (Container-based, so the half-width viewers on Compare get the compact layout too.)
+const WIDE_MIN_REM = 45;
 
-// Module-level: guarantees only one Mol* instance exists at a time
-// (StrictMode, fast navigation and breakpoint changes all queue up here).
+// Module-level: every new instance waits for ALL previous instances to be
+// fully disposed before it is created (StrictMode, fast navigation, resizes,
+// and Compare's two viewers unmounting together all queue up here).
 let lastTeardown = Promise.resolve();
 
-function useMediaQuery(query) {
-  const [matches, setMatches] = useState(
-    () => window.matchMedia(query).matches,
-  );
+// null until the first measurement, then true/false
+function useIsWide(ref, minRem) {
+  const [wide, setWide] = useState(null);
   useEffect(() => {
-    const mq = window.matchMedia(query);
-    const onChange = (e) => setMatches(e.matches);
-    setMatches(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, [query]);
-  return matches;
+    const el = ref.current;
+    if (!el) return;
+    const rootPx =
+      parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const min = minRem * rootPx;
+    const update = (width) => setWide(width >= min);
+    update(el.getBoundingClientRect().width);
+    const ro = new ResizeObserver(([entry]) => update(entry.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, minRem]);
+  return wide;
 }
 
 export default function MolViewer({ url, format, isBinary = false }) {
+  const wrapRef = useRef(null);
   const hostRef = useRef(null);
   const viewerRef = useRef(null);
   const [engineReady, setEngineReady] = useState(false);
   const [status, setStatus] = useState("loading"); // loading | ready | unavailable | error
-  const wide = useMediaQuery(WIDE_QUERY);
+  const wide = useIsWide(wrapRef, WIDE_MIN_REM);
 
-  // 1) Create the viewer (again if the breakpoint changes)
+  // 1) Create the viewer (again if the container crosses the width threshold)
   useEffect(() => {
+    if (wide === null) return; // wait for the first measurement
     let cancelled = false;
     const el = document.createElement("div");
     el.className = "mol-viewer__canvas";
@@ -44,7 +53,7 @@ export default function MolViewer({ url, format, isBinary = false }) {
 
       const viewer = await Viewer.create(el, {
         layoutIsExpanded: false,
-        layoutShowControls: wide, // phone: canvas + toolbar only
+        layoutShowControls: wide, // compact: canvas + toolbar only
         layoutShowLeftPanel: wide,
         layoutShowSequence: wide,
         layoutShowLog: false,
@@ -71,7 +80,7 @@ export default function MolViewer({ url, format, isBinary = false }) {
       cancelled = true;
       viewerRef.current = null;
       setEngineReady(false);
-      lastTeardown = creation.then((viewer) => {
+      const teardown = creation.then((viewer) => {
         try {
           viewer?.plugin.dispose();
         } catch {
@@ -79,6 +88,8 @@ export default function MolViewer({ url, format, isBinary = false }) {
         }
         el.remove();
       });
+      // chain (don't overwrite) so simultaneous unmounts are all awaited
+      lastTeardown = Promise.all([lastTeardown, teardown]);
     };
   }, [wide]);
 
@@ -120,7 +131,7 @@ export default function MolViewer({ url, format, isBinary = false }) {
   }, [engineReady, url, format, isBinary]);
 
   return (
-    <div className="mol-viewer">
+    <div className="mol-viewer" ref={wrapRef}>
       <div ref={hostRef} className="mol-viewer__host" />
       {status !== "ready" && (
         <div className="mol-viewer__status" role="status">

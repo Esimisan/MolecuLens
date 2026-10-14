@@ -1,6 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import { loadUser } from "./auth.js";
+import { loadUser, purgeExpiredSessions } from "./auth.js";
 import authRoutes from "./routes/auth.js";
 import savedRoutes from "./routes/saved.js";
 
@@ -27,6 +27,9 @@ app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: "Something went wrong on the server." });
 });
+
+purgeExpiredSessions(); // clean up once at startup
+setInterval(purgeExpiredSessions, 60 * 60 * 1000).unref(); // then every hour
 
 app.listen(PORT, () =>
   console.log(`MolecuLens API on http://localhost:${PORT}`),

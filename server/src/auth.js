@@ -87,3 +87,7 @@ export function requireAuth(req, res, next) {
 }
 
 export const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email });
+
+export function purgeExpiredSessions() {
+  db.prepare("DELETE FROM sessions WHERE expires_at < ?").run(Date.now());
+}

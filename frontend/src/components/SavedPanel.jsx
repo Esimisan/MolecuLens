@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth.js";
 import { useSaved } from "../hooks/useSaved.js";
 import "../styles/SavedPanel.css";
 
-// when I move saves to the account, change this to "Saved to your account."
-const FOOTER_TEXT = "Saved on this device.";
+const FOOTER_TEXT = "Saved to your account.";
 
 const TABS = [
   { type: "ligand", label: "Ligands" },
@@ -46,6 +46,7 @@ function Thumb({ type, id }) {
 }
 
 export default function SavedPanel({ open, onClose }) {
+  const { user } = useAuth();
   const { items, status, remove } = useSaved();
   const [tab, setTab] = useState("ligand");
   const panelRef = useRef(null);
@@ -92,84 +93,115 @@ export default function SavedPanel({ open, onClose }) {
           </button>
         </header>
 
-        <div className="saved-tabs" role="tablist" aria-label="Saved type">
-          {TABS.map(({ type, label }) => (
-            <button
-              key={type}
-              type="button"
-              role="tab"
-              aria-selected={tab === type}
-              className={`saved-tab${tab === type ? " is-active" : ""}`}
-              onClick={() => setTab(type)}
-            >
-              {label}
-              <span className="saved-tab__count">{items[type].length}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="saved-panel__body" role="tabpanel">
-          {status === "loading" && (
-            <p className="saved-panel__note">Loading…</p>
-          )}
-          {status === "error" && (
-            <p className="saved-panel__note">
-              Couldn’t load your saved items. Reload the page to try again.
-            </p>
-          )}
-          {status === "ready" && list.length === 0 && (
+        {!user ? (
+          <div className="saved-panel__body">
             <div className="saved-empty">
               <p className="saved-empty__title">
-                No saved {tab === "ligand" ? "ligands" : "proteins"} yet
+                Log in to see your saved items
               </p>
               <p className="saved-panel__note">
-                Use the Save button on{" "}
-                {tab === "ligand" ? "a ligand" : "a protein"} to keep it here.
+                Saved ligands and proteins live in your account, so you can
+                reach them from any device.
               </p>
-              <Link
-                className="btn btn-outline"
-                to={tab === "ligand" ? "/ligands" : "/proteins"}
-                onClick={onClose}
-              >
-                Open {tab === "ligand" ? "Ligand" : "Protein"} Explorer
-              </Link>
+              <div className="saved-panel__actions">
+                <Link className="btn btn-primary" to="/login" onClick={onClose}>
+                  Log in
+                </Link>
+                <Link
+                  className="btn btn-outline"
+                  to="/register"
+                  onClick={onClose}
+                >
+                  Sign up
+                </Link>
+              </div>
             </div>
-          )}
-          {status === "ready" && list.length > 0 && (
-            <ul className="saved-list">
-              {list.map((item) => (
-                <li key={item.id} className="saved-item">
-                  <Thumb type={item.type} id={item.id} />
+          </div>
+        ) : (
+          <>
+            <div className="saved-tabs" role="tablist" aria-label="Saved type">
+              {TABS.map(({ type, label }) => (
+                <button
+                  key={type}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === type}
+                  className={`saved-tab${tab === type ? " is-active" : ""}`}
+                  onClick={() => setTab(type)}
+                >
+                  {label}
+                  <span className="saved-tab__count">{items[type].length}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="saved-panel__body" role="tabpanel">
+              {status === "loading" && (
+                <p className="saved-panel__note">Loading…</p>
+              )}
+              {status === "error" && (
+                <p className="saved-panel__note">
+                  Couldn’t load your saved items. Reload the page to try again.
+                </p>
+              )}
+              {status === "ready" && list.length === 0 && (
+                <div className="saved-empty">
+                  <p className="saved-empty__title">
+                    No saved {tab === "ligand" ? "ligands" : "proteins"} yet
+                  </p>
+                  <p className="saved-panel__note">
+                    Use the Save button on{" "}
+                    {tab === "ligand" ? "a ligand" : "a protein"} to keep it
+                    here.
+                  </p>
                   <Link
-                    className="saved-item__body"
-                    to={hrefFor(item.type, item.id)}
+                    className="btn btn-outline"
+                    to={tab === "ligand" ? "/ligands" : "/proteins"}
                     onClick={onClose}
                   >
-                    <span className="saved-item__title">
-                      {item.title || item.id}
-                    </span>
-                    {item.subtitle && (
-                      <span className="saved-item__sub">{item.subtitle}</span>
-                    )}
-                    <span className="saved-item__id">
-                      {item.type === "ligand" ? `CID ${item.id}` : item.id}
-                    </span>
+                    Open {tab === "ligand" ? "Ligand" : "Protein"} Explorer
                   </Link>
-                  <button
-                    type="button"
-                    className="icon-button saved-item__remove"
-                    aria-label={`Remove ${item.title || item.id}`}
-                    onClick={() => remove(item.type, item.id)}
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                </div>
+              )}
+              {status === "ready" && list.length > 0 && (
+                <ul className="saved-list">
+                  {list.map((item) => (
+                    <li key={item.id} className="saved-item">
+                      <Thumb type={item.type} id={item.id} />
+                      <Link
+                        className="saved-item__body"
+                        to={hrefFor(item.type, item.id)}
+                        onClick={onClose}
+                      >
+                        <span className="saved-item__title">
+                          {item.title || item.id}
+                        </span>
+                        {item.subtitle && (
+                          <span className="saved-item__sub">
+                            {item.subtitle}
+                          </span>
+                        )}
+                        <span className="saved-item__id">
+                          {item.type === "ligand" ? `CID ${item.id}` : item.id}
+                        </span>
+                      </Link>
+                      <button
+                        type="button"
+                        className="icon-button saved-item__remove"
+                        aria-label={`Remove ${item.title || item.id}`}
+                        onClick={() => remove(item.type, item.id)}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
-        <footer className="saved-panel__footer">{FOOTER_TEXT}</footer>
+            <footer className="saved-panel__footer">{FOOTER_TEXT}</footer>
+          </>
+        )}
       </aside>
     </div>
   );

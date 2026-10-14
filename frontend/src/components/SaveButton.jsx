@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth.js";
 import { useSaved } from "../hooks/useSaved.js";
 import "../styles/SaveButton.css";
 
@@ -9,7 +11,10 @@ export default function SaveButton({
   subtitle,
   compact = false,
 }) {
+  const { user } = useAuth();
   const { isSaved, toggle, status } = useSaved();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -18,6 +23,13 @@ export default function SaveButton({
 
   async function handleClick() {
     if (disabled) return;
+
+    // Logged out: go to /login and remember where we came from.
+    if (!user) {
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+
     setBusy(true);
     setFailed(false);
     const ok = await toggle({ type, id, title, subtitle });

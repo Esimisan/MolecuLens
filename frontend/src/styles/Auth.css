@@ -28,3 +28,22 @@
 .field:focus {
   border-color: var(--color-text);
 }
+
+.field--invalid {
+  border-color: #b3261e;
+}
+
+.field-error {
+  margin-top: -0.5rem;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: #b3261e;
+}
+
+.form-error {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  border-radius: 1rem;
+  color: #b3261e;
+  background: rgba(179, 38, 30, 0.08);
+}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MoleculeHero from "../components/MoleculeHero";
 import "../styles/Home.css";
+import useAuth from "../hooks/useAuth.js";
 
 const MODES = {
   ligand: {
@@ -30,6 +31,7 @@ function Home() {
   const [mode, setMode] = useState("ligand");
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const { user, greeting } = useAuth();
   const current = MODES[mode];
 
   const goSearch = (term) => {
@@ -47,6 +49,7 @@ function Home() {
       <div className="hero">
         <MoleculeHero />
         <div className="hero-content">
+          {user && greeting && <p className="hero-greeting">{greeting}</p>}
           <p className="eyebrow">MolecuLens / PubChem + RCSB PDB</p>
           <h1 className="hero-title">
             Explore

@@ -1,4 +1,3 @@
-/* Deliberately NOT .glass-card: backdrop-filter breaks Mol* fullscreen */
 .compare-slot {
   min-width: 0;
   padding: 1.25rem;
@@ -59,4 +58,10 @@
   font-size: 0.875rem;
   color: inherit;
   text-underline-offset: 0.2em;
+}
+.compare-slot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }

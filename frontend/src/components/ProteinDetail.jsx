@@ -13,6 +13,7 @@ import {
 } from "../services/rcsb";
 import "../styles/ProteinDetail.css";
 import StructureViewer from "./StructureViewer.jsx";
+import SaveButton from "./SaveButton.jsx";
 
 const fmt = (v, unit = "") =>
   v === null || v === undefined || v === "" ? "—" : `${v}${unit}`;
@@ -107,6 +108,15 @@ function EntryView({ p }) {
             <a className="btn" href={dl.pdb}>
               PDB file
             </a>
+            <SaveButton
+              type="protein"
+              id={p.id}
+              title={p.title}
+              subtitle={[
+                prettyMethod(p.method),
+                formatResolution(p.resolution),
+              ].join(" · ")}
+            />
             <a className="btn btn-outline" href={dl.cif}>
               mmCIF
             </a>

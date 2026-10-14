@@ -95,3 +95,6 @@ export const sdfDownloadUrl = (cid) =>
 
 export const pubchemPageUrl = (cid) =>
   `https://pubchem.ncbi.nlm.nih.gov/compound/${cid}`;
+
+export const sdf3dUrl = (cid) =>
+  `${BASE}/compound/cid/${cid}/record/SDF?record_type=3d`;

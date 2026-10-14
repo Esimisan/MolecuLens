@@ -11,6 +11,7 @@ import {
 } from "../services/pubchem";
 import "../styles/LigandExplorer.css";
 import StructureViewer from "../components/StructureViewer.jsx";
+import SaveButton from "../components/SaveButton.jsx";
 
 const SUGGESTIONS = ["aspirin", "caffeine", "ibuprofen", "glucose"];
 const SYNONYMS_PREVIEW = 12;
@@ -148,6 +149,12 @@ function CompoundView({ c }) {
             <a className="btn" href={sdfDownloadUrl(c.cid)}>
               Download SDF
             </a>
+            <SaveButton
+              type="ligand"
+              id={c.cid}
+              title={c.title}
+              subtitle={c.formula}
+            />
             <a
               className="btn btn-outline"
               href={pubchemPageUrl(c.cid)}

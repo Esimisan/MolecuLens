@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import StructureViewer from "./StructureViewer";
 import "../styles/CompareSlot.css";
+import SaveButton from "./SaveButton";
 
 const PDB_ID = /^[0-9][A-Za-z0-9]{3}$/;
 const SUGGESTIONS = {
@@ -91,13 +92,24 @@ export default function CompareSlot({
           </h2>
           {sub && <p className="compare-slot-sub">{sub}</p>}
         </div>
-        <button
-          type="button"
-          className="btn btn-outline compare-btn-sm"
-          onClick={onClear}
-        >
-          Change
-        </button>
+        <div className="compare-slot-actions">
+          {status === "success" && (
+            <SaveButton
+              compact
+              type={type}
+              id={type === "protein" ? item.id : item.cid}
+              title={item.name}
+              subtitle={sub}
+            />
+          )}
+          <button
+            type="button"
+            className="btn btn-outline compare-btn-sm"
+            onClick={onClear}
+          >
+            Change
+          </button>
+        </div>
       </div>
 
       {status === "loading" && (

@@ -1,17 +1,30 @@
-import Database from "better-sqlite3";
+import "dotenv/config";
+import { createClient } from "@libsql/client";
 import { mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const dbPath = process.env.DB_PATH || resolve(here, "../data/moleculens.db");
-mkdirSync(dirname(dbPath), { recursive: true });
+const url = process.env.TURSO_DATABASE_URL;
+const authToken = process.env.TURSO_AUTH_TOKEN;
 
-const db = new Database(dbPath);
-db.pragma("journal_mode = WAL");
-db.pragma("foreign_keys = ON");
+// In production we must never fall back to a local file: on Render's free plan
+// it would be wiped on every restart and you'd lose all accounts silently.
+if (!url && process.env.NODE_ENV === "production") {
+  throw new Error("TURSO_DATABASE_URL is not set.");
+}
 
-db.exec(`
+let config;
+if (url) {
+  config = { url, authToken };
+} else {
+  // Local fallback for development when no Turso variables are set
+  mkdirSync("data", { recursive: true });
+  config = { url: "file:data/moleculens.db" };
+}
+
+const db = createClient(config);
+console.log(`Database: ${url ? "Turso" : "local file (data/moleculens.db)"}`);
+
+// Create the tables if they don't exist yet (safe to run on every start)
+await db.executeMultiple(`
   CREATE TABLE IF NOT EXISTS users (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     name          TEXT    NOT NULL,
@@ -37,5 +50,24 @@ db.exec(`
     PRIMARY KEY (user_id, type, item_id)
   );
 `);
+
+/* ---------- small helpers so queries stay one-liners ---------- */
+
+// First matching row, or null
+export async function get(sql, args = []) {
+  const { rows } = await db.execute({ sql, args });
+  return rows[0] ?? null;
+}
+
+// All matching rows
+export async function all(sql, args = []) {
+  const { rows } = await db.execute({ sql, args });
+  return rows;
+}
+
+// INSERT / UPDATE / DELETE. Returns { rowsAffected, lastInsertRowid }
+export function run(sql, args = []) {
+  return db.execute({ sql, args });
+}
 
 export default db;

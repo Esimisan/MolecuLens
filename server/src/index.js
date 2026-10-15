@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
 import { loadUser, purgeExpiredSessions } from "./auth.js";
@@ -8,7 +9,7 @@ const app = express();
 const PORT = Number(process.env.PORT) || 4000;
 
 app.disable("x-powered-by");
-app.set("trust proxy", 1);
+app.set("trust proxy", process.env.NODE_ENV === "production" ? 2 : 1);
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 app.use(loadUser);
@@ -28,9 +29,12 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: "Something went wrong on the server." });
 });
 
-purgeExpiredSessions(); // clean up once at startup
-setInterval(purgeExpiredSessions, 60 * 60 * 1000).unref(); // then every hour
-
+const purge = () =>
+  purgeExpiredSessions().catch((e) =>
+    console.error("Session cleanup failed:", e),
+  );
+purge(); // clean up once at startup
+setInterval(purge, 60 * 60 * 1000).unref(); // then every hour
 app.listen(PORT, () =>
   console.log(`MolecuLens API on http://localhost:${PORT}`),
 );

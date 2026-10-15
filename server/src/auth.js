@@ -5,7 +5,7 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import { promisify } from "node:util";
-import db from "./db.js";
+import { get, run } from "./db.js";
 
 const scrypt = promisify(scryptCb);
 
@@ -45,39 +45,43 @@ function cookieOptions(maxAge) {
   };
 }
 
-export function createSession(res, userId) {
+export async function createSession(res, userId) {
   const token = randomBytes(32).toString("hex");
-  db.prepare(
+  await run(
     "INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)",
-  ).run(sha256(token), userId, Date.now() + SESSION_MS);
+    [sha256(token), userId, Date.now() + SESSION_MS],
+  );
   res.cookie(COOKIE_NAME, token, cookieOptions(SESSION_MS));
 }
 
-export function destroySession(req, res) {
+export async function destroySession(req, res) {
   const token = req.cookies?.[COOKIE_NAME];
   if (token)
-    db.prepare("DELETE FROM sessions WHERE token_hash = ?").run(sha256(token));
+    await run("DELETE FROM sessions WHERE token_hash = ?", [sha256(token)]);
   res.clearCookie(COOKIE_NAME, cookieOptions());
 }
 
 /* ---------- middleware ---------- */
 
 // Runs on every request. If the cookie holds a valid session, sets req.user.
-export function loadUser(req, _res, next) {
-  const token = req.cookies?.[COOKIE_NAME];
-  if (token) {
-    const row = db
-      .prepare(
+export async function loadUser(req, _res, next) {
+  try {
+    const token = req.cookies?.[COOKIE_NAME];
+    if (token) {
+      const row = await get(
         `SELECT u.id, u.name, u.email, s.expires_at
          FROM sessions s JOIN users u ON u.id = s.user_id
          WHERE s.token_hash = ?`,
-      )
-      .get(sha256(token));
-    if (row && row.expires_at > Date.now()) {
-      req.user = { id: row.id, name: row.name, email: row.email };
+        [sha256(token)],
+      );
+      if (row && row.expires_at > Date.now()) {
+        req.user = { id: row.id, name: row.name, email: row.email };
+      }
     }
+    next();
+  } catch (err) {
+    next(err);
   }
-  next();
 }
 
 // Put in front of any route that needs a logged-in user.
@@ -88,6 +92,6 @@ export function requireAuth(req, res, next) {
 
 export const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email });
 
-export function purgeExpiredSessions() {
-  db.prepare("DELETE FROM sessions WHERE expires_at < ?").run(Date.now());
+export async function purgeExpiredSessions() {
+  await run("DELETE FROM sessions WHERE expires_at < ?", [Date.now()]);
 }

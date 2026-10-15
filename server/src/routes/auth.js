@@ -1,6 +1,6 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-import db from "../db.js";
+import { get, run } from "../db.js";
 import {
   hashPassword,
   verifyPassword,
@@ -21,6 +21,11 @@ const authLimiter = rateLimit({
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const clean = (v) => (typeof v === "string" ? v.trim() : "");
+
+const EMAIL_TAKEN = {
+  error: "An account with this email already exists.",
+  fields: { email: "An account with this email already exists." },
+};
 
 router.post("/register", authLimiter, async (req, res, next) => {
   try {
@@ -43,22 +48,28 @@ router.post("/register", authLimiter, async (req, res, next) => {
         .json({ error: "Check the highlighted fields.", fields });
     }
 
-    if (db.prepare("SELECT 1 FROM users WHERE email = ?").get(email)) {
-      return res.status(409).json({
-        error: "An account with this email already exists.",
-        fields: { email: "An account with this email already exists." },
-      });
+    if (await get("SELECT 1 FROM users WHERE email = ?", [email])) {
+      return res.status(409).json(EMAIL_TAKEN);
     }
 
     const hash = await hashPassword(password);
-    const { lastInsertRowid } = db
-      .prepare(
+    let result;
+    try {
+      result = await run(
         "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
-      )
-      .run(name, email, hash);
+        [name, email, hash],
+      );
+    } catch (err) {
+      // Two sign-ups with the same email at the same instant: the UNIQUE
+      // rule in the database catches the second one.
+      if (/UNIQUE/i.test(String(err?.message))) {
+        return res.status(409).json(EMAIL_TAKEN);
+      }
+      throw err;
+    }
 
-    const user = { id: Number(lastInsertRowid), name, email };
-    createSession(res, user.id);
+    const user = { id: Number(result.lastInsertRowid), name, email };
+    await createSession(res, user.id);
     res.status(201).json({ user: publicUser(user), isNew: true });
   } catch (err) {
     next(err);
@@ -71,7 +82,7 @@ router.post("/login", authLimiter, async (req, res, next) => {
     const password =
       typeof req.body?.password === "string" ? req.body.password : "";
     const row = email
-      ? db.prepare("SELECT * FROM users WHERE email = ?").get(email)
+      ? await get("SELECT * FROM users WHERE email = ?", [email])
       : null;
 
     const ok =
@@ -79,16 +90,20 @@ router.post("/login", authLimiter, async (req, res, next) => {
     if (!ok)
       return res.status(401).json({ error: "Email or password is incorrect." });
 
-    createSession(res, row.id);
+    await createSession(res, row.id);
     res.json({ user: publicUser(row), isNew: false });
   } catch (err) {
     next(err);
   }
 });
 
-router.post("/logout", (req, res) => {
-  destroySession(req, res);
-  res.json({ ok: true });
+router.post("/logout", async (req, res, next) => {
+  try {
+    await destroySession(req, res);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
 });
 
 // The front end calls this on page load to ask "who am I?"

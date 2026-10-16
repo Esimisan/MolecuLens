@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SavedContext } from "./savedContext.js";
+import useAuth from "../hooks/useAuth.js";
 import {
   addSaved,
   listSaved,
@@ -10,10 +11,32 @@ import {
 const EMPTY = { ligand: [], protein: [] };
 
 export function SavedProvider({ children }) {
+  const { user, status: authStatus } = useAuth();
+
+  // Who do the saved items belong to?
+  //   null    = still waiting to find out who is logged in
+  //   "guest" = nobody is logged in (nothing is ever saved for guests)
+  //   user id = a logged-in account
+  const ownerKey = authStatus === "ready" ? (user?.id ?? "guest") : null;
+
+  const [owner, setOwner] = useState(ownerKey);
   const [items, setItems] = useState(EMPTY);
-  const [status, setStatus] = useState("loading"); // loading | ready | error
+  const [status, setStatus] = useState(
+    ownerKey === "guest" ? "ready" : "loading", // loading | ready | error
+  );
+
+  // When the owner changes (login / logout), clear the old user's items right
+  // away so they never flash on screen. Guests have nothing to load, so they
+  // are "ready" immediately; accounts wait for the effect below.
+  if (owner !== ownerKey) {
+    setOwner(ownerKey);
+    setItems(EMPTY);
+    setStatus(ownerKey === "guest" ? "ready" : "loading");
+  }
 
   useEffect(() => {
+    // Nothing to fetch while we don't know who it is, or for guests.
+    if (!ownerKey || ownerKey === "guest") return;
     let alive = true;
     listSaved()
       .then((data) => {
@@ -25,7 +48,7 @@ export function SavedProvider({ children }) {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [ownerKey]);
 
   // After a failed write, reload the truth from the adapter.
   const resync = useCallback(async () => {

@@ -8,6 +8,17 @@ import savedRoutes from "./routes/saved.js";
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
 
+// Marks every API response as "don't cache" (these are per-user responses).
+app.use("/api", (req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
+
+// Health check: tiny and fast, with no database and no login. Used to keep the server awake.
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true });
+});
+
 app.disable("x-powered-by");
 app.set("trust proxy", process.env.NODE_ENV === "production" ? 2 : 1);
 app.use(express.json({ limit: "10kb" }));

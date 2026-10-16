@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.jpg" />
+    <!-- Swap to /favicon.png and type="image/png" once you've shrunk it (Step 6) -->
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,13 +11,52 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <meta name="og:title" content="MolecuLens" />
-    <meta name="og:image" content="/Og-image.jpg" />
-    <link rel="stylesheet" href="/frontend/src/index.css" />
+    <meta property="og:title" content="MolecuLens" />
+    <meta
+      property="og:image"
+      content="https://moleculens.vercel.app/Og-image.jpg"
+    />
     <title>MolecuLens</title>
+
+    <script>
+      // Start waking the backend now, while the JS bundle is still downloading.
+      fetch("/api/health", { cache: "no-store" }).catch(function () {});
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Boot screen: shown until React renders, then replaced automatically -->
+      <div role="status" aria-label="Loading MolecuLens">
+        <header class="header">
+          <a class="wordmark" href="/" aria-label="MolecuLens home">
+            <span class="wordmark-text">
+              <span>Molecu</span><span class="wordmark-light">Lens</span>
+            </span>
+            <img
+              src="/header-logo.png"
+              alt=""
+              class="wordmark-logo"
+              draggable="false"
+            />
+          </a>
+          <nav class="nav">
+            <span class="nav-link">Ligands</span>
+            <span class="nav-link">Proteins</span>
+            <span class="nav-link">Compare</span>
+            <span class="nav-link">Saved</span>
+            <span class="nav-auth-skeleton" aria-hidden="true">
+              <span class="skeleton skeleton-pill"></span>
+              <span class="skeleton skeleton-pill"></span>
+            </span>
+          </nav>
+        </header>
+        <div class="boot-body" aria-hidden="true">
+          <span class="skeleton boot-line"></span>
+          <span class="skeleton boot-line short"></span>
+          <span class="skeleton boot-bar"></span>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

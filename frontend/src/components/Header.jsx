@@ -93,29 +93,33 @@ function Header({ onOpenSaved }) {
           Saved
         </button>
 
-        {/* Render nothing until we know who is logged in, to avoid a flash. */}
-        {status === "ready" &&
-          (user ? (
-            <>
-              <span className="nav-user">{user.name}</span>
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={handleLogout}
-              >
-                Log out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="btn btn-outline">
-                Log in
-              </Link>
-              <Link to="/register" className="btn btn-primary">
-                Sign up
-              </Link>
-            </>
-          ))}
+        {/* While the server is answering, show placeholders so the layout doesn't jump */}
+        {status !== "ready" ? (
+          <span className="nav-auth-skeleton" aria-hidden="true">
+            <span className="skeleton skeleton-pill" />
+            <span className="skeleton skeleton-pill" />
+          </span>
+        ) : user ? (
+          <>
+            <span className="nav-user">{user.name}</span>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="btn btn-outline">
+              Log in
+            </Link>
+            <Link to="/register" className="btn btn-primary">
+              Sign up
+            </Link>
+          </>
+        )}
       </nav>
     </header>
   );

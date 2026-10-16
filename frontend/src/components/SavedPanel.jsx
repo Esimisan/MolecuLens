@@ -46,7 +46,7 @@ function Thumb({ type, id }) {
 }
 
 export default function SavedPanel({ open, onClose }) {
-  const { user } = useAuth();
+  const { user, status: authStatus } = useAuth();
   const { items, status, remove } = useSaved();
   const [tab, setTab] = useState("ligand");
   const panelRef = useRef(null);
@@ -93,7 +93,11 @@ export default function SavedPanel({ open, onClose }) {
           </button>
         </header>
 
-        {!user ? (
+        {authStatus !== "ready" ? (
+          <div className="saved-panel__body">
+            <p className="saved-panel__note">Loading…</p>
+          </div>
+        ) : !user ? (
           <div className="saved-panel__body">
             <div className="saved-empty">
               <p className="saved-empty__title">

@@ -93,3 +93,180 @@
 .wordmark-light {
   color: #9a9a9a;
 }
+
+/* ---------- Phone menu (hamburger) ---------- */
+
+/* Hidden above phone width */
+.menu-toggle,
+.menu-backdrop {
+  display: none;
+}
+
+/* On bigger screens the wrapper doesn't exist as a box: its children
+   sit directly in .nav exactly as before. */
+.nav-auth {
+  display: contents;
+}
+
+@media (max-width: 40em) {
+  /* Keep the wordmark and the button on one row */
+  .header {
+    flex-wrap: nowrap;
+  }
+
+  /* --- the hamburger button --- */
+  .menu-toggle {
+    display: block;
+    position: relative;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  /* Three bars stacked in the middle; they turn into an X when open */
+  .menu-toggle__bar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1.125rem;
+    height: 0.125rem;
+    margin-left: -0.5625rem;
+    border-radius: 999px;
+    background: currentColor;
+    transition:
+      transform 0.2s ease,
+      opacity 0.15s ease;
+  }
+  .menu-toggle__bar:nth-child(1) {
+    transform: translateY(-0.3125rem);
+  }
+  .menu-toggle__bar:nth-child(3) {
+    transform: translateY(0.3125rem);
+  }
+  .menu-toggle.is-open .menu-toggle__bar:nth-child(1) {
+    transform: rotate(45deg);
+  }
+  .menu-toggle.is-open .menu-toggle__bar:nth-child(2) {
+    opacity: 0;
+  }
+  .menu-toggle.is-open .menu-toggle__bar:nth-child(3) {
+    transform: rotate(-45deg);
+  }
+
+  /* --- the dropdown panel --- */
+  .nav {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: var(--page-gutter);
+    right: var(--page-gutter);
+    width: auto;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    max-height: calc(100dvh - var(--header-height) - 1.5rem);
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+  }
+
+  .nav.is-open {
+    display: flex;
+    animation: menu-in 0.18s ease-out;
+  }
+
+  /* Big, easy-to-tap rows */
+  .nav-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    color: var(--color-text);
+    text-align: left;
+  }
+  .nav-link:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  .nav-link.active {
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  /* Log in / Sign up (or name + Log out) stacked under a divider */
+  .nav-auth {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .nav-auth .btn {
+    width: 100%;
+  }
+  .nav-user {
+    display: flex;
+    align-items: center;
+    max-width: none;
+    padding: 0 0.75rem;
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+  .nav-auth-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .nav-auth-skeleton .skeleton-pill {
+    width: 100%;
+    height: 2.75rem;
+  }
+
+  /* --- dimmed page behind the open menu --- */
+  .menu-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 19; /* just under the header (z-index 20) so the header stays tappable */
+    background: rgba(0, 0, 0, 0.25);
+    animation: menu-fade 0.18s ease-out;
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes menu-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav.is-open,
+  .menu-backdrop {
+    animation: none;
+  }
+  .menu-toggle__bar {
+    transition: none;
+  }
+}
